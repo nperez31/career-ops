@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="{{LANG}}">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{NAME}} — CV</title>
+<!-- career-ops-template
+name: Marriott School
+page_margin: 0.6in 0.6in 0.5in 0.6in
+section_order: fixed
+-->
+<style>
+  /* BYU Marriott School of Business resume format.
+     Specification decoded directly from Marriott-Resume-Template.docx (OOXML),
+     so the numbers below are the template's own, not an approximation:
+
+       page margins  top 180 / right 864 / bottom 360 / left 864 twips
+                     = 0.125in / 0.6in / 0.25in / 0.6in
+       Normal        Times New Roman, sz 20 half-points = 10pt, single spacing
+       Title         centered, bold, sz 28 = 14pt            -> .header h1
+       Heading2      Arial, bold, smallCaps, sz 22 = 11pt,
+                     single bottom border                    -> .section-title
+       Resume        bold, sz 21 = 10.5pt, right tab @ 7.5in -> .job-header / .edu-header
+       ListParagraph left indent 720 twips = 0.5in           -> .job ul
+
+     The serif body / sans-serif headings split is deliberate in the source
+     document, not an error.
+
+     DELIBERATE DEVIATION — page margins. The .docx's own top/bottom margins
+     (0.125in / 0.25in, decoded above) are not reproduced. They exist to let a
+     student cram a first resume onto one page, and Word visually offsets the
+     top with a reserved header band that a browser has no equivalent for. Set
+     literally, they render a PDF whose name sits an eighth of an inch from the
+     paper edge with section rules running nearly edge to edge. `page_margin`
+     above therefore uses balanced 0.6/0.6/0.5/0.6in, which matches both the
+     rest of this project's templates and the candidate's own resume in this
+     format. Everything else here follows the .docx exactly; if a future edit
+     needs the original values they are recorded above.
+
+     One judgment call: every placeholder run in the .docx carries an explicit
+     <w:b w:val="0"/>, switching OFF the bold that the "Resume" paragraph style
+     itself declares. The style's stated intent (bold) and the candidate's own
+     resume in this format both use bold organization names, so bold is kept
+     here for .job-company / .edu-title. Position titles stay italic and
+     non-bold, exactly as the placeholder runs show.
+
+     ATS-safe typography: system serif/sans stacks only, no bundled webfont.
+     'Liberation Serif'/'Liberation Sans' are the metric-compatible Linux
+     substitutes for Times New Roman/Arial, matching the base template's
+     approach. This avoids the glyph-advance bug that makes PDF text
+     extractors inject spurious spaces inside words. */
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Ligatures off: headless Chromium substitutes fi/fl/ffi with U+FB01-03,
+       which PDF text extractors (what ATS systems read) decode back to those
+       codepoints, so a literal keyword search for "verification" misses
+       "veriﬁcation". Required ligatures (rlig) stay on. */
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "clig" 0, "dlig" 0;
+  }
+
+  html {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    font-family: 'Times New Roman', 'Liberation Serif', Georgia, 'DejaVu Serif', serif;
+    font-size: 10pt;
+    line-height: 1.15;
+    color: #000;
+    background: #ffffff;
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "clig" 0, "dlig" 0;
+  }
+
+  .page {
+    width: 100%;
+    max-width: {{PAGE_WIDTH}};
+    margin: 0 auto;
+  }
+
+  /* Opt-in photo (off by default; US/ATS markets penalize photos). */
+  .cv-photo {
+    float: right;
+    width: 80px;
+    height: 100px;
+    object-fit: cover;
+    margin: 0 0 8px 14px;
+    border: 1px solid #ccc;
+  }
+
+  /* === HEADER (Title style: centered, bold, 14pt) === */
+  .header {
+    text-align: center;
+    margin-bottom: 8pt;
+  }
+
+  .header h1 {
+    font-family: 'Times New Roman', 'Liberation Serif', Georgia, 'DejaVu Serif', serif;
+    font-size: 14pt;
+    font-weight: 700;
+    color: #000;
+    line-height: 1.2;
+    margin-bottom: 1pt;
+  }
+
+  .contact-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0 6pt;
+    font-size: 10pt;
+    line-height: 1.25;
+    color: #000;
+  }
+
+  .contact-row a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  .contact-row .separator {
+    color: #000;
+  }
+
+  a {
+    white-space: nowrap;
+  }
+
+  /* === SECTIONS (Heading2: Arial bold small-caps 11pt + bottom rule) === */
+  .section {
+    margin-bottom: 8pt;
+  }
+
+  .section-title {
+    font-family: Arial, 'Liberation Sans', 'Helvetica Neue', 'DejaVu Sans', sans-serif;
+    font-size: 11pt;
+    font-weight: 700;
+    font-variant: small-caps;
+    text-transform: lowercase;
+    color: #000;
+    border-bottom: 0.5pt solid #000;
+    padding-bottom: 1pt;
+    margin-bottom: 3pt;
+    line-height: 1.2;
+  }
+
+  /* small-caps needs lowercase source text to show the caps/small-caps
+     contrast; ::first-letter is left alone so each word still opens with a
+     full capital. Section titles arrive title-cased from the payload. */
+  .section-title::first-letter {
+    text-transform: uppercase;
+  }
+
+  /* === SUMMARY (unused by the Marriott layout, styled for reuse) === */
+  .summary-text {
+    font-size: 10pt;
+    line-height: 1.25;
+    color: #000;
+    margin-bottom: 2pt;
+  }
+
+  /* === EXPERIENCE / LEADERSHIP (Resume style: 10.5pt, right tab) === */
+  .job {
+    margin-bottom: 6pt;
+  }
+
+  .job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12pt;
+  }
+
+  .job-company {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #000;
+  }
+
+  .job-period {
+    font-size: 10.5pt;
+    color: #000;
+    white-space: nowrap;
+  }
+
+  .job-role {
+    font-size: 10.5pt;
+    font-style: italic;
+    color: #000;
+    float: left;
+  }
+
+  .job-location {
+    font-size: 10.5pt;
+    font-style: italic;
+    color: #000;
+    float: right;
+  }
+
+  .job ul {
+    clear: both;
+    list-style: none;
+    padding-left: 0.5in;
+    margin-top: 1pt;
+  }
+
+  .job li {
+    font-size: 10pt;
+    line-height: 1.25;
+    color: #000;
+    margin-bottom: 1pt;
+    position: relative;
+  }
+
+  /* Word renders this list with a small filled square. */
+  .job li::before {
+    content: "\25AA";
+    position: absolute;
+    left: -12pt;
+    font-size: 8pt;
+    top: 0.5pt;
+  }
+
+  /* === PROJECTS === */
+  .project {
+    margin-bottom: 5pt;
+  }
+
+  .project-title {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #000;
+  }
+
+  .project-badge {
+    font-size: 9pt;
+    font-weight: 400;
+    font-style: italic;
+    color: #000;
+    margin-left: 6pt;
+  }
+
+  .project-desc {
+    font-size: 10pt;
+    color: #000;
+    line-height: 1.25;
+  }
+
+  .project-tech {
+    font-size: 10pt;
+    font-style: italic;
+    color: #000;
+  }
+
+  /* === EDUCATION ===
+     Payload convention for this template, mirroring the .docx layout using
+     only the existing schema fields (no renderer change required):
+       education[].title       -> INSTITUTION line (bold, left)
+       education[].org         -> leave "" (its span renders empty)
+       education[].year        -> LOCATION text (right-aligned, e.g. "Provo, UT")
+       education[].description -> degree / GPA / minor line (italic, below)
+     Sub-details (honors, coursework, awards) belong in this description line;
+     the Marriott template bullets them, and a payload can emulate that by
+     separating them with " | ". */
+  .edu-item {
+    margin-bottom: 4pt;
+  }
+
+  .edu-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12pt;
+  }
+
+  .edu-title {
+    font-weight: 700;
+    font-size: 10.5pt;
+    color: #000;
+  }
+
+  .edu-org {
+    font-weight: 400;
+    color: #000;
+  }
+
+  .edu-year {
+    font-size: 10.5pt;
+    color: #000;
+    white-space: nowrap;
+  }
+
+  .edu-desc {
+    font-size: 10.5pt;
+    font-style: italic;
+    color: #000;
+    line-height: 1.25;
+  }
+
+  /* === CERTIFICATIONS (one flowing pipe-separated line) === */
+  .cert-table {
+    display: block;
+    font-size: 10pt;
+    line-height: 1.3;
+  }
+
+  .cert-item {
+    display: inline;
+  }
+
+  .cert-item:not(:first-child)::before {
+    /* Non-breaking spaces so the gap survives inline whitespace collapsing. */
+    content: "\00a0|\00a0";
+    color: #000;
+  }
+
+  .cert-item > * {
+    display: inline;
+    padding: 0 !important;
+  }
+
+  .cert-title {
+    font-size: 10pt;
+    color: #000;
+  }
+
+  .cert-org,
+  .cert-year {
+    display: none;
+  }
+
+  /* === SKILLS / AWARDS, SKILLS & INTERESTS === */
+  .skills-grid {
+    display: block;
+  }
+
+  .skill-item {
+    font-size: 10pt;
+    color: #000;
+    line-height: 1.3;
+    margin-bottom: 1pt;
+  }
+
+  .skill-category {
+    font-weight: 700;
+    color: #000;
+    font-size: 10pt;
+  }
+
+  /* === PRINT === */
+  @media print {
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+    /* Small right gutter: right-aligned content (dates, locations) aligns to
+       the content-box edge and the last glyph's side bearing can spill ~1px
+       past it and get clipped by Chromium's print clip. */
+    .page {
+      padding: 0 0.06in 0 0;
+    }
+  }
+
+  /* === PAGE BREAK CONTROL === */
+  .header,
+  .edu-item,
+  .cert-item,
+  .skill-item {
+    break-inside: avoid;
+    page-break-inside: avoid;
+  }
+
+  .section-title,
+  .job-company,
+  .job-role,
+  .project-title {
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  /* === RTL (Arabic) support === */
+  html[lang="ar"] body {
+    direction: rtl;
+    text-align: right;
+    font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  }
+
+  html[lang="ar"] .job ul {
+    padding-right: 0.5in;
+    padding-left: 0;
+  }
+
+  html[lang="ar"] .job li::before {
+    left: auto;
+    right: -12pt;
+  }
+
+  html[lang="ar"] .job-role {
+    float: right;
+  }
+
+  html[lang="ar"] .job-location {
+    float: left;
+  }
+
+  html[lang="ar"] .cv-photo {
+    float: left;
+    margin: 0 14px 8px 0;
+  }
+
+  /* === CJK (Japanese) font fallback === */
+  html[lang="ja"] body {
+    font-family: 'Times New Roman', 'Liberation Serif', Georgia, 'Hiragino Mincho ProN',
+      'Yu Mincho', 'YuMincho', 'Noto Serif CJK JP', 'Noto Serif JP', MS Mincho, serif;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  {{PHOTO}}
+  <!-- HEADER -->
+  <div class="header">
+    <h1>{{NAME}}</h1>
+    <div class="contact-row">
+      <a href="tel:{{PHONE}}">{{PHONE}}</a>
+      <span class="separator">|</span>
+      <a href="mailto:{{EMAIL}}">{{EMAIL}}</a>
+      <span class="separator">|</span>
+      <a href="{{LINKEDIN_URL}}">{{LINKEDIN_DISPLAY}}</a>
+      <span class="separator">|</span>
+      <a href="{{PORTFOLIO_URL}}">{{PORTFOLIO_DISPLAY}}</a>
+      <span class="separator">|</span>
+      <span>{{LOCATION}}</span>
+    </div>
+  </div>
+
+  <!-- EDUCATION -->
+  <div class="section">
+    <div class="section-title">{{SECTION_EDUCATION}}</div>
+    {{EDUCATION}}
+  </div>
+  <!-- /EDUCATION -->
+
+  <!-- EXPERIENCE -->
+  <div class="section">
+    <div class="section-title">{{SECTION_EXPERIENCE}}</div>
+    {{EXPERIENCE}}
+  </div>
+  <!-- /EXPERIENCE -->
+
+  <!-- LEADERSHIP -->
+  <div class="section">
+    <div class="section-title">{{SECTION_LEADERSHIP}}</div>
+    {{LEADERSHIP}}
+  </div>
+  <!-- /LEADERSHIP -->
+
+  <!-- PROJECTS -->
+  <div class="section">
+    <div class="section-title">{{SECTION_PROJECTS}}</div>
+    {{PROJECTS}}
+  </div>
+  <!-- /PROJECTS -->
+
+  <!-- CERTIFICATIONS -->
+  <div class="section">
+    <div class="section-title">{{SECTION_CERTIFICATIONS}}</div>
+    <div class="cert-table">{{CERTIFICATIONS}}</div>
+  </div>
+  <!-- /CERTIFICATIONS -->
+
+  <!-- SKILLS -->
+  <div class="section">
+    <div class="section-title">{{SECTION_SKILLS}}</div>
+    {{SKILLS}}
+  </div>
+  <!-- /SKILLS -->
+
+</div>
+</body>
+</html>

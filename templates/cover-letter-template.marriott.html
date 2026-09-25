@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Cover Letter — {{NAME}}</title>
+<!-- career-ops-template
+name: Marriott School
+page_margin: 0.6in
+-->
+<style>
+  /* Companion to cv-template.marriott.html.
+
+     Harvard MCS rule this exists to satisfy: "Ensure your resume and cover
+     letter are prepared with the same font type and size." The base
+     cover-letter-template.html is Helvetica/Arial sans, which pairs badly with
+     the Marriott resume's Times New Roman. Body type here is identical to the
+     resume: Times New Roman 10pt, with the same Arial small-caps treatment for
+     the one heading and the same name/contact block.
+
+     Margins are a plain 0.6in all round rather than the resume's tight
+     asymmetric set: a letter is prose on a mostly empty page, so it wants
+     normal breathing room, and Harvard asks for a letter that stays on a
+     single page rather than one that fills it. */
+
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    /* Ligatures off — see cv-template.marriott.html for the ATS rationale. */
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "clig" 0, "dlig" 0;
+  }
+
+  html {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  body {
+    font-family: 'Times New Roman', 'Liberation Serif', Georgia, 'DejaVu Serif', serif;
+    font-size: 10pt;
+    line-height: 1.35;
+    color: #000;
+    background: #ffffff;
+    font-variant-ligatures: none;
+    font-feature-settings: "liga" 0, "clig" 0, "dlig" 0;
+  }
+
+  /* Header block mirrors the resume's centered letterhead so the two
+     documents read as one set when opened side by side. */
+  .name {
+    text-align: center;
+    font-weight: 700;
+    font-size: 14pt;
+    line-height: 1.2;
+    margin-bottom: 1pt;
+  }
+
+  .contact, .credentials {
+    text-align: center;
+    font-size: 10pt;
+    color: #000;
+    line-height: 1.25;
+  }
+
+  .contact a, .credentials a, .footnotes a {
+    color: #000;
+    text-decoration: none;
+  }
+
+  .divider {
+    border: none;
+    border-top: 0.5pt solid #000;
+    margin: 8pt 0 10pt;
+  }
+
+  .role-title {
+    font-family: Arial, 'Liberation Sans', 'Helvetica Neue', 'DejaVu Sans', sans-serif;
+    font-weight: 700;
+    font-variant: small-caps;
+    font-size: 11pt;
+    margin-bottom: 1pt;
+  }
+
+  .dateline {
+    font-size: 10pt;
+    color: #000;
+    margin-bottom: 12pt;
+  }
+
+  .greeting {
+    margin-bottom: 8pt;
+  }
+
+  p {
+    margin-bottom: 8pt;
+    text-align: left;
+  }
+
+  /* Optional. Harvard: "do not reiterate your entire resume" — the letter's
+     default shape is three paragraphs, and this block is used only when a
+     short proof list genuinely reads better than prose. */
+  .achievements {
+    list-style: none;
+    margin-bottom: 8pt;
+  }
+
+  .achievements li {
+    margin-bottom: 4pt;
+    padding-left: 14pt;
+    position: relative;
+  }
+
+  .achievements li::before {
+    content: "\25AA";
+    position: absolute;
+    left: 0;
+    font-size: 8pt;
+    top: 2pt;
+  }
+
+  .language-closing {
+    font-style: italic;
+    margin-top: 4pt;
+    margin-bottom: 8pt;
+  }
+
+  .footnotes {
+    margin-top: 12pt;
+    padding-top: 4pt;
+    border-top: 0.5pt solid #000;
+  }
+
+  .footnotes p {
+    font-size: 9pt;
+    color: #333;
+    line-height: 1.3;
+    margin-bottom: 3pt;
+  }
+
+  @media print {
+    body {
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+  }
+</style>
+</head>
+<body>
+  <div class="name">{{NAME}}</div>
+  <div class="contact">{{CONTACT_LINE}}</div>
+  {{CREDENTIALS_BLOCK}}
+  <hr class="divider">
+
+  <div class="role-title">Cover Letter: {{ROLE_TITLE}}</div>
+  <div class="dateline">{{DATELINE}}</div>
+
+  {{GREETING_BLOCK}}
+  <p>{{OPENING}}</p>
+  <p>{{PROFILE_INTRO}}</p>
+
+  {{ACHIEVEMENTS_BLOCK}}
+
+  {{PROBLEMS_BLOCK}}
+  {{CLOSING_BLOCK}}
+  {{LANGUAGE_CLOSING_BLOCK}}
+  {{FOOTNOTES_BLOCK}}
+</body>
+</html>

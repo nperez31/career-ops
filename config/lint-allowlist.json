@@ -1,0 +1,6 @@
+{
+  "_comment": "User-layer additions to resume-lint.mjs's abbreviation allowlist. Add proper-noun initialisms and field-specific acronyms that are standard for this candidate and should never be flagged as needing spell-out. Survives system updates.",
+  "abbreviations": [
+    "BYU"
+  ]
+}
